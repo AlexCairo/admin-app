@@ -99,7 +99,7 @@ const SideBar = ({ children }) => {
       },
     },
     show: {
-      width: "230px",
+      width: "190px",
       padding: "5px 15px",
       transition: {
         duration: 0.2,
@@ -129,7 +129,7 @@ const SideBar = ({ children }) => {
       <div className="main-container">
         <motion.div
           animate={{
-            width: isOpen ? "300px" : "50px",
+            width: isOpen ? "300px" : "55px",
 
             transition: {
               duration: 0.5,
@@ -173,13 +173,14 @@ const SideBar = ({ children }) => {
                   placeholder="Search"
                 />
               )}
-            </AnimatePresence>
+            </AnimatePresence >
           </div>
           <section className="routes">
             {routes.map((route, index) => {
               if (route.subRoutes) {
                 return (
                   <SidebarMenu
+                   key={index}
                     setIsOpen={setIsOpen}
                     route={route}
                     showAnimation={showAnimation}
@@ -193,7 +194,7 @@ const SideBar = ({ children }) => {
                   to={route.path}
                   key={index}
                   className="link"
-                  activeClassName="active"
+                  activeclassname="active"
                 >
                   <div className="icon">{route.icon}</div>
                   <AnimatePresence>
@@ -214,8 +215,9 @@ const SideBar = ({ children }) => {
             })}
           </section>
         </motion.div>
-
-        <main>{children}</main>
+        <main className="bg-[#E9F4F2] w-screen p-7">
+          {children}
+        </main>
       </div>
     </>
   );

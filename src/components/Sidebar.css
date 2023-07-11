@@ -19,7 +19,7 @@ body {
   
   /* Sidebar */
   .sidebar {
-    background: rgb(19, 20, 34);
+    background: #131422;
     color: white;
     height: 100vh;
     overflow-y: auto;
