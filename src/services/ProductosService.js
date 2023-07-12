@@ -5,3 +5,13 @@ export const listaProductos = async () => {
     const result = await axios.get(`${URL_API}/productos`);
     return result;
 };
+
+export const agregarProductos = async (datos) => {
+    const result = await axios.post(`${URL_API}/productos`,datos);
+    return result;
+};
+
+export const eliminarProductos = async (id) => {
+    const result = await axios.delete(`${URL_API}/productos/${id}`);
+    return result;
+};
