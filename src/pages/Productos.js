@@ -3,9 +3,20 @@ import { listaProductos, agregarProductos, eliminarProductos } from "../services
 import { listaMarcas } from "../services/MarcasService"; 
 import { listaMedidas } from "../services/MedidasService";
 import { listaCategorias } from "../services/CategoriasService";
-import { Input, Textarea, Select, Option, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
+import { Input, Textarea, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
 import { BiExport } from "react-icons/bi"
+import { FaRegSave } from "react-icons/fa"
 import { FiEdit2, FiTrash2 } from "react-icons/fi"
+
+const initValues = {
+    id : 0,
+    nombre : "",
+    descripcion : "",
+    marca_id : 0,
+    medida_id : 0,
+    categoria_id : 0,
+    precioVenta : 0,
+}
 
 const Productos = () => {
     const [productos, setProductos] = useState([]);
@@ -13,9 +24,10 @@ const Productos = () => {
     const [marcas, setMarcas] = useState([]);
     const [medidas, setMedidas] = useState([]);
     const [categorias, setCategorias] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [productosPorPagina] = useState(5);
-    const [buscarProducto, setBuscarProducto] = useState("");
+    // const [currentPage, setCurrentPage] = useState(1);
+    // const [productosPorPagina] = useState(5);
+    // const [buscarProducto, setBuscarProducto] = useState("");
+    const [nuevoProducto, setNuevoProducto] = useState(initValues);
 
     const handleOpen = () => setOpenModal((cur) => !cur);
 
@@ -27,7 +39,21 @@ const Productos = () => {
         await eliminarProductos(id);
         const nLista = productos.filter(elem => elem.id !== id);
         setProductos(nLista);
+    };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        const nDatos = { ...nuevoProducto, [name]: value };
+        setNuevoProducto(nDatos);
     }
+    const handleSubmit = async(e) => {
+        nuevoProducto.categoria_id = parseInt(nuevoProducto.categoria_id);
+        nuevoProducto.marca_id = parseInt(nuevoProducto.marca_id);
+        nuevoProducto.medida_id = parseInt(nuevoProducto.medida_id);
+        nuevoProducto.precioVenta = parseFloat(nuevoProducto.precioVenta);
+        await agregarProductos(nuevoProducto);
+        listarProductos();
+        handleOpen();
+    };
     const listarMedidas = async() => {
         const result = await listaMedidas();
         setMedidas(result.data);
@@ -53,44 +79,48 @@ const Productos = () => {
             <React.Fragment>
                 <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between">
                     <Button onClick={handleOpen} className="rounded-full font-bold text-2xl">+</Button>
-                    <Button ripple="true" className="bg-white text-purple-500 duration-300 shadow-none hover:shadow-none hover:bg-purple-800 hover:text-white"><BiExport className="text-2xl" /></Button>
+                    <Button ripple={true} className="bg-white text-purple-500 duration-300 shadow-none hover:shadow-none hover:bg-purple-800 hover:text-white"><BiExport className="text-2xl" /></Button>
                 </div>
                 <Dialog size="lg" open={openModal} handler={handleOpen} className="bg-transparent shadow-none">
                     <form className="grid grid-cols-3 gap-6 bg-white p-4 rounded-xl">
-                        <h2 className="col-span-3 text-center font-medium text-3xl text-[#131422]">Nuevo Producto</h2>
+                        <h2 className="col-span-3 bg-[#131422] rounded-xl p-2 text-center font-medium text-3xl text-white">Nuevo Producto</h2>
                         <div className="rounded-xl h-12">
-                            <Input color="indigo" size="lg" label="Nombre" />
+                            <Input onChange={handleChange} size="lg" color="indigo" label="Nombre" name="nombre" />
                         </div>
                         <div className="rounded-xl h-12 row-span-2">
-                            <Textarea color="indigo" size="lg" label="Descripción" />
+                            <Textarea onChange={handleChange} name="descripcion" color="indigo" size="lg" label="Descripción" />
                         </div>
                         <div className="rounded-xl h-12">
-                            <Select label="Medidas">
+                            <label>Medidas</label>
+                            <select name="medida_id" onChange={handleChange}>
                                 {medidas.map((medida)=>(
-                                    <Option key={medida.id}>{medida.nombre}</Option>
+                                    <option value={medida.id} key={medida.id}>{medida.nombre}</option>
                                 ))}
-                            </Select>
+                            </select>
                         </div>
                         <div className="rounded-xl h-12">
-                            <Select label="Marca">
+                            <label>Marca</label>
+                            <select name="marca_id" onChange={handleChange}>
                                 {marcas.map((marca)=>(
-                                    <Option key={marca.id}>{marca.nombre}</Option>
+                                    <option value={marca.id} key={marca.id}>{marca.nombre}</option>
                                 ))}
-                            </Select>
+                            </select>
                         </div>
                         <div className="rounded-xl h-12">
                             <Input disabled color="indigo" size="lg" label="Imagen" />
                         </div>
                         <div className="rounded-xl h-12">
-                            <Input color="indigo" size="lg" label="Precio de Venta" />
+                            <Input onChange={handleChange} name="precioVenta" color="indigo" size="lg" label="Precio de Venta" />
                         </div>
                         <div className="rounded-xl h-12">
-                            <Select label="Categorías">
+                            <label>Categoria</label>
+                            <select name="categoria_id" onChange={handleChange}>
                                 {categorias.map((categoria)=>(
-                                    <Option key={categoria.id}>{categoria.nombre}</Option>
+                                    <option value={categoria.id} key={categoria.id}>{categoria.nombre}</option>
                                 ))}
-                            </Select>
+                            </select>
                         </div>
+                        <Button onClick={handleSubmit} className="text-base w-36 flex justify-center gap-2 items-center">Guardar<FaRegSave/></Button>
                     </form>
                 </Dialog>
             </React.Fragment>
