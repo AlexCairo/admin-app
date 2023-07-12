@@ -24,10 +24,10 @@ const Productos = () => {
     const [marcas, setMarcas] = useState([]);
     const [medidas, setMedidas] = useState([]);
     const [categorias, setCategorias] = useState([]);
-    // const [currentPage, setCurrentPage] = useState(1);
-    // const [productosPorPagina] = useState(5);
-    // const [buscarProducto, setBuscarProducto] = useState("");
+    const [productosPerPage, setProductosPerPage] = useState(6);
+    const [currentPage, setCurrentPage] = useState(1);
     const [nuevoProducto, setNuevoProducto] = useState(initValues);
+    const totalProductos = productos.length;
 
     const handleOpen = () => setOpenModal((cur) => !cur);
 
@@ -90,17 +90,17 @@ const Productos = () => {
                         <div className="rounded-xl h-12 row-span-2">
                             <Textarea onChange={handleChange} name="descripcion" color="indigo" size="lg" label="Descripción" />
                         </div>
-                        <div className="rounded-xl h-12">
+                        <div className="h-12 text-center rounded-md p-3 bg-gray-100">
                             <label>Medidas</label>
-                            <select name="medida_id" onChange={handleChange}>
+                            <select name="medida_id" className="border border-gray-400 ml-4 w-52 rounded-md text-center" onChange={handleChange}>
                                 {medidas.map((medida)=>(
                                     <option value={medida.id} key={medida.id}>{medida.nombre}</option>
                                 ))}
                             </select>
                         </div>
-                        <div className="rounded-xl h-12">
+                        <div className="h-12 text-center rounded-md p-3 bg-gray-100">
                             <label>Marca</label>
-                            <select name="marca_id" onChange={handleChange}>
+                            <select name="marca_id" className="border border-gray-400 ml-4 w-52 rounded-md text-center" onChange={handleChange}>
                                 {marcas.map((marca)=>(
                                     <option value={marca.id} key={marca.id}>{marca.nombre}</option>
                                 ))}
@@ -112,15 +112,17 @@ const Productos = () => {
                         <div className="rounded-xl h-12">
                             <Input onChange={handleChange} name="precioVenta" color="indigo" size="lg" label="Precio de Venta" />
                         </div>
-                        <div className="rounded-xl h-12">
+                        <div className="h-12 text-center rounded-md p-3 bg-gray-100">
                             <label>Categoria</label>
-                            <select name="categoria_id" onChange={handleChange}>
+                            <select name="categoria_id" className="border border-gray-400 ml-4 w-52 rounded-md text-center" onChange={handleChange}>
                                 {categorias.map((categoria)=>(
                                     <option value={categoria.id} key={categoria.id}>{categoria.nombre}</option>
                                 ))}
                             </select>
                         </div>
-                        <Button onClick={handleSubmit} className="text-base w-36 flex justify-center gap-2 items-center">Guardar<FaRegSave/></Button>
+                        <div className="grid place-content-center">
+                            <Button color="green" onClick={handleSubmit} className="text-base w-36 flex justify-center gap-2 items-center">Guardar<FaRegSave/></Button>
+                        </div>
                     </form>
                 </Dialog>
             </React.Fragment>
@@ -155,9 +157,6 @@ const Productos = () => {
                     ))}
                 </tbody>
             </table>
-            <div>
-
-            </div>
         </section>
     )
 }
