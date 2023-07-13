@@ -54,13 +54,13 @@ const routes = [
     ],
   },
   {
-    path: "/inventario",
-    name: "Inventario",
+    path: "/inventarios",
+    name: "Inventarios",
     icon: <MdInventory />,
   },
   {
     path: "/cajas",
-    name: "Caja",
+    name: "Cajas",
     icon: <FaCashRegister />,
   },
   {
