@@ -6,25 +6,28 @@ import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
-import { URL_API } from "../helpers/Config";
+import Pagination from "../components/Pagination";
+import { listaCategorias } from "../services/CategoriasService";
 
 const Permisos = () => {
   const [permisos, setPermisos] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const handleOpen = () => setOpenModal((cur) => !cur);
 
+  const [permisosPerPage, setPermisosPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const lastPermisoIndex = currentPage * permisosPerPage;
+  const firstPermisoIndex = lastPermisoIndex - permisosPerPage;
+  const currentPermisos = permisos.slice(firstPermisoIndex, lastPermisoIndex);
+
+  const listarCategorias = async () => {
+    const result = await listaCategorias();
+    setPermisos(result.data)
+  }
+  
   useEffect(() => {
-    let url = `${URL_API}/permisos`;
-
-    axios
-      .get(url)
-      .then((response) => {
-        setPermisos(response.data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener los datos de la API:", error);
-      });
+    listarCategorias();
   }, []);
 
   const DateInput = React.forwardRef(({ value, onClick }, ref) => (
@@ -74,7 +77,7 @@ const Permisos = () => {
           </tr>
         </thead>
         <tbody>
-          {permisos.map((permiso, index) => {
+          {currentPermisos.map((permiso, index) => {
             return (
               <tr key={permiso.id} className="[&>td]:p-2">
                 <td className="text-center">{index + 1}</td>
@@ -99,6 +102,12 @@ const Permisos = () => {
           })}
         </tbody>
       </table>
+      <Pagination 
+                totalProducts={permisos.length} 
+                productsPerPage={permisosPerPage}
+                setCurrentPage={setCurrentPage} 
+                currentPage={currentPage} 
+      />
     </section>
   );
 };

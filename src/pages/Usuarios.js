@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { eliminarCajas } from "../services/CajasService";
-import { Input, Textarea, Select, Option, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
+import { Input, Textarea, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
 import { BiExport } from "react-icons/bi";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
-import { URL_API } from "../helpers/Config";
+import { listaUsuarios } from "../services/UsuariosService";
+import Pagination from "../components/Pagination";
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -14,19 +12,20 @@ const Usuarios = () => {
 
   const handleOpen = () => setOpenModal((cur) => !cur);
 
+  const [UsersPerPage, setUsersPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const lastUserIndex = currentPage * UsersPerPage;
+  const firstUserIndex = lastUserIndex - UsersPerPage;
+  const currentUsers = usuarios.slice(firstUserIndex, lastUserIndex);
+
+  const listarUsuarios = async () => {
+    const result = await listaUsuarios();
+    setUsuarios(result.data);
+  }
 
   useEffect(() => {
-    let url = `${URL_API}/users`;
-
-    axios
-      .get(url)
-      .then((response) => {
-        setUsuarios(response.data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener los datos de la API:", error);
-      });
+    listarUsuarios();
   }, []);
 
   const DateInput = React.forwardRef(({ value, onClick }, ref) => (
@@ -78,7 +77,7 @@ const Usuarios = () => {
           </tr>
         </thead>
         <tbody>
-          {usuarios.map((usuario, index) => {
+          {currentUsers.map((usuario, index) => {
             return (
               <tr key={usuario.id} className="[&>td]:p-2">
                 <td className="text-center">{index + 1}</td>
@@ -105,6 +104,12 @@ const Usuarios = () => {
           })}
         </tbody>
       </table>
+      <Pagination 
+                totalProducts={usuarios.length} 
+                productsPerPage={UsersPerPage}
+                setCurrentPage={setCurrentPage} 
+                currentPage={currentPage} 
+      />
     </section>
   );
 };

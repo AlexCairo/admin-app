@@ -90,23 +90,7 @@ const routes = [
 const SideBar = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-  const inputAnimation = {
-    hidden: {
-      width: 0,
-      padding: 0,
-      transition: {
-        duration: 0.2,
-      },
-    },
-    show: {
-      width: "190px",
-      padding: "5px 15px",
-      transition: {
-        duration: 0.2,
-      },
-    },
-  };
-
+ 
   const showAnimation = {
     hidden: {
       width: 0,
@@ -137,7 +121,7 @@ const SideBar = ({ children }) => {
               damping: 10,
             },
           }}
-          className={`sidebar `}
+          className={`sidebar`}
         >
           <div className="top_section">
             <AnimatePresence>
@@ -157,23 +141,6 @@ const SideBar = ({ children }) => {
             <div className="bars">
               <FaBars onClick={toggle} />
             </div>
-          </div>
-          <div className="search">
-            <div className="search_icon">
-              <BiSearch />
-            </div>
-            <AnimatePresence>
-              {isOpen && (
-                <motion.input
-                  initial="hidden"
-                  animate="show"
-                  exit="hidden"
-                  variants={inputAnimation}
-                  type="text"
-                  placeholder="Search"
-                />
-              )}
-            </AnimatePresence >
           </div>
           <section className="routes">
             {routes.map((route, index) => {

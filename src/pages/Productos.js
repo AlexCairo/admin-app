@@ -96,7 +96,8 @@ const Productos = () => {
                         </div>
                         <div className="h-12 text-center rounded-md p-3 bg-gray-100">
                             <label>Medidas</label>
-                            <select name="medida_id" className="border border-gray-400 ml-4 w-52 rounded-md text-center" onChange={handleChange}>
+                            <select required = {true} name="medida_id" className="border border-gray-400 ml-4 w-32 rounded-md text-center" onChange={handleChange}>
+                                <option selected = {true} disabled = {true}>Seleccionar</option>
                                 {medidas.map((medida)=>(
                                     <option value={medida.id} key={medida.id}>{medida.nombre}</option>
                                 ))}
@@ -104,7 +105,8 @@ const Productos = () => {
                         </div>
                         <div className="h-12 text-center rounded-md p-3 bg-gray-100">
                             <label>Marca</label>
-                            <select name="marca_id" className="border border-gray-400 ml-4 w-52 rounded-md text-center" onChange={handleChange}>
+                            <select required = {true} name="marca_id" className="border border-gray-400 ml-4 w-32 rounded-md text-center" onChange={handleChange}>
+                                <option selected = {true} disabled = {true}>Seleccionar</option>
                                 {marcas.map((marca)=>(
                                     <option value={marca.id} key={marca.id}>{marca.nombre}</option>
                                 ))}
@@ -118,7 +120,8 @@ const Productos = () => {
                         </div>
                         <div className="h-12 text-center rounded-md p-3 bg-gray-100">
                             <label>Categoria</label>
-                            <select name="categoria_id" className="border border-gray-400 ml-4 w-52 rounded-md text-center" onChange={handleChange}>
+                            <select required = {true} name="categoria_id" className="border border-gray-400 ml-4 w-32 rounded-md text-center" onChange={handleChange}>
+                                <option selected = {true} disabled = {true}>Seleccionar</option>
                                 {categorias.map((categoria)=>(
                                     <option value={categoria.id} key={categoria.id}>{categoria.nombre}</option>
                                 ))}

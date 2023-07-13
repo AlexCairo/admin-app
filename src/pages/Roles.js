@@ -1,33 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { eliminarCajas } from "../services/CajasService";
-import { Input, Textarea, Select, Option, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
+import { Input, Textarea, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
 import { BiExport } from "react-icons/bi";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
-import { URL_API } from "../helpers/Config";
+import { listaRoles } from "../services/RolesService";
 
 const Roles = () => {
   const [roles, setRoles] = useState([]);
-
   const [openModal, setOpenModal] = useState(false);
 
   const handleOpen = () => setOpenModal((cur) => !cur);
 
-
+  const listarRoles = async () => {
+    const result = await listaRoles();
+    setRoles(result.data);
+  }
 
   useEffect(() => {
-    let url = `${URL_API}/roles`;
-
-    axios
-      .get(url)
-      .then((response) => {
-        setRoles(response.data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener los datos de la API:", error);
-      });
+    listarRoles();
   }, []);
 
   const DateInput = React.forwardRef(({ value, onClick }, ref) => (
