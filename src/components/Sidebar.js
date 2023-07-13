@@ -6,10 +6,13 @@ import { BsFillBookmarkCheckFill, BsPersonRolodex } from "react-icons/bs";
 import { HiRectangleStack } from "react-icons/hi2";
 import { TbBottleFilled } from "react-icons/tb";
 import { FcSalesPerformance } from "react-icons/fc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import SidebarMenu from "../components/SidebarMenu";
+import { listaProductos } from "../services/ProductosService";
 import "../components/Sidebar.css"
+import Loader from "../components/Loader";
+
 const routes = [
   {
     path: "/",
@@ -89,6 +92,17 @@ const routes = [
 
 const SideBar = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [listaDeProductos, setListaDeProductos] = useState([]);
+
+  const listadoDeProductos = async () => {
+      const result = await listaProductos();
+      setListaDeProductos(result.data);
+  };
+
+  useEffect(()=>{
+    listadoDeProductos();
+  },[]);
+
   const toggle = () => setIsOpen(!isOpen);
  
   const showAnimation = {
@@ -183,7 +197,7 @@ const SideBar = ({ children }) => {
           </section>
         </motion.div>
         <main className="bg-[#E9F4F2] w-screen p-7">
-          {children}
+          {listaDeProductos.length > 0 ? children : <><Loader /></>}
         </main>
       </div>
     </>

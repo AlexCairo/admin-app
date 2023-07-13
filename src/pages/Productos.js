@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { listaProductos, agregarProductos, eliminarProductos } from "../services/ProductosService";
+import { listaProductos, agregarProductos, eliminarProductos, editarProductos } from "../services/ProductosService";
 import { listaMarcas } from "../services/MarcasService"; 
 import { listaMedidas } from "../services/MedidasService";
 import { listaCategorias } from "../services/CategoriasService";
 import { Input, Textarea, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
-import { BiExport } from "react-icons/bi"
+import { BiExport, BiSearch } from "react-icons/bi"
 import { FaRegSave } from "react-icons/fa"
 import { FiEdit2, FiTrash2 } from "react-icons/fi"
 import Pagination from "../components/Pagination";
@@ -28,7 +28,8 @@ const Productos = () => {
     const [productsPerPage, setProductsPerPage] = useState(6);
     const [currentPage, setCurrentPage] = useState(1);
     const [nuevoProducto, setNuevoProducto] = useState(initValues);
-
+    const [tituloModal, setTituloModal] = useState('Nuevo producto');
+    
     const lastProductIndex = currentPage * productsPerPage;
     const firstPostIndex = lastProductIndex - productsPerPage;
     const currentProducts = productos.slice(firstPostIndex, lastProductIndex);
@@ -44,6 +45,7 @@ const Productos = () => {
         const nLista = productos.filter(elem => elem.id !== id);
         setProductos(nLista);
     };
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
         const nDatos = { ...nuevoProducto, [name]: value };
@@ -55,7 +57,7 @@ const Productos = () => {
         nuevoProducto.medida_id = parseInt(nuevoProducto.medida_id);
         nuevoProducto.precioVenta = parseFloat(nuevoProducto.precioVenta);
         await agregarProductos(nuevoProducto);
-        listarProductos();
+        await listarProductos();
         handleOpen();
     };
     const listarMedidas = async() => {
@@ -81,8 +83,12 @@ const Productos = () => {
     return(
         <section className="h-full">
             <React.Fragment>
-                <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between">
+                <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between items-center">
                     <Button onClick={handleOpen} className="rounded-full font-bold text-2xl">+</Button>
+                    <div className="flex relative">
+                        <Input containerProps={{className : "min-w-0"}} className="pr-20" label="Buscar" color="white"/>
+                        <Button  size="sm" className="text-base !absolute right-1 top-1 rounded" ><BiSearch/></Button>
+                    </div>
                     <Button ripple={true} className="bg-white text-purple-500 duration-300 shadow-none hover:shadow-none hover:bg-purple-800 hover:text-white"><BiExport className="text-2xl" /></Button>
                 </div>
                 <Dialog size="lg" open={openModal} handler={handleOpen} className="bg-transparent shadow-none">
@@ -136,18 +142,20 @@ const Productos = () => {
             <table className="table-auto rounded-xl col-span-3 bg-white w-full mt-4">
                 <thead>
                     <tr className="text-center [&>th]:p-2 bg-[#131422] text-white">
-                        <th className="rounded-s">Nombre</th>
+                        <th className="rounded-s">N°</th>
+                        <th>Nombre</th>
                         <th>Categoria</th>
                         <th>Marca</th>
                         <th>Medida</th>
                         <th>Cantidad</th>
                         <th>Precio</th>
-                        <th className="rounded-e"></th>
+                        <th className="rounded-e">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {currentProducts.map((producto) => (
+                    {currentProducts.map((producto, index) => (
                         <tr key={producto.id} className="[&>td]:p-2">
+                            <td className="text-center">{(currentPage - 1) * productsPerPage + index + 1}</td>
                             <td>{producto.nombre}</td>
                             <td className="text-center">{producto.categoria.nombre}</td>
                             <td className="text-center">{producto.marca.nombre}</td>

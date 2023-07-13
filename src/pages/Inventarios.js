@@ -160,7 +160,7 @@ const Inventarios = () => {
             className="border border-gray-300 rounded-md px-4 py-2 mb-4 bg-white"
           />
           {showResults && searchTerm.length > 0 && searchResults.length > 0 && (
-            <ul className="absolute z-10 bg-white border border-gray-300 rounded-md mt-2 w-full">
+            <ul className="absolute h-80 overflow-y-auto z-10 bg-white border border-gray-300 rounded-md mt-2 w-full">
               {searchResults.map((result) => (
                 <li
                   key={result.id}
