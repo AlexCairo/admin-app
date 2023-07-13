@@ -13,9 +13,9 @@ const initValues = {
     id : 0,
     nombre : "",
     descripcion : "",
-    marca_id : 0,
-    medida_id : 0,
-    categoria_id : 0,
+    marca_id : 1,
+    medida_id : 1,
+    categoria_id : 1,
     precioVenta : 0,
 }
 
@@ -25,7 +25,7 @@ const Productos = () => {
     const [marcas, setMarcas] = useState([]);
     const [medidas, setMedidas] = useState([]);
     const [categorias, setCategorias] = useState([]);
-    const [productsPerPage, setProductsPerPage] = useState(6);
+    const [productsPerPage, setProductsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [nuevoProducto, setNuevoProducto] = useState(initValues);
 
@@ -133,7 +133,8 @@ const Productos = () => {
             <table className="table-auto rounded-xl col-span-3 bg-white w-full mt-4">
                 <thead>
                     <tr className="text-center [&>th]:p-2 bg-[#131422] text-white">
-                        <th className="rounded-s">Nombre</th>
+                        <th className="rounded-s">N°</th>
+                        <th>Nombre</th>
                         <th>Categoria</th>
                         <th>Marca</th>
                         <th>Medida</th>
@@ -143,9 +144,10 @@ const Productos = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentProducts.map((producto) => (
+                    {currentProducts.map((producto,index) => (
                         <tr key={producto.id} className="[&>td]:p-2">
-                            <td>{producto.nombre}</td>
+                            <td className="text-center">{(currentPage - 1) * productsPerPage + index + 1}</td>
+                            <td className="text-center">{producto.nombre}</td>
                             <td className="text-center">{producto.categoria.nombre}</td>
                             <td className="text-center">{producto.marca.nombre}</td>
                             <td className="text-center">{producto.medida.nombre}</td>
