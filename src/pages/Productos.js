@@ -7,6 +7,7 @@ import { Input, Textarea, Button, Dialog, ButtonGroup } from "@material-tailwind
 import { BiExport } from "react-icons/bi"
 import { FaRegSave } from "react-icons/fa"
 import { FiEdit2, FiTrash2 } from "react-icons/fi"
+import Pagination from "../components/Pagination";
 
 const initValues = {
     id : 0,
@@ -24,10 +25,13 @@ const Productos = () => {
     const [marcas, setMarcas] = useState([]);
     const [medidas, setMedidas] = useState([]);
     const [categorias, setCategorias] = useState([]);
-    const [productosPerPage, setProductosPerPage] = useState(6);
+    const [productsPerPage, setProductsPerPage] = useState(6);
     const [currentPage, setCurrentPage] = useState(1);
     const [nuevoProducto, setNuevoProducto] = useState(initValues);
-    const totalProductos = productos.length;
+
+    const lastProductIndex = currentPage * productsPerPage;
+    const firstPostIndex = lastProductIndex - productsPerPage;
+    const currentProducts = productos.slice(firstPostIndex, lastProductIndex);
 
     const handleOpen = () => setOpenModal((cur) => !cur);
 
@@ -139,7 +143,7 @@ const Productos = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {productos.map((producto) => (
+                    {currentProducts.map((producto) => (
                         <tr key={producto.id} className="[&>td]:p-2">
                             <td>{producto.nombre}</td>
                             <td className="text-center">{producto.categoria.nombre}</td>
@@ -157,6 +161,12 @@ const Productos = () => {
                     ))}
                 </tbody>
             </table>
+            <Pagination 
+                totalProducts={productos.length} 
+                productsPerPage={productsPerPage}
+                setCurrentPage={setCurrentPage} 
+                currentPage={currentPage} 
+            />
         </section>
     )
 }
