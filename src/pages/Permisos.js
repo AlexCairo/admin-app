@@ -1,40 +1,185 @@
 import React, { useState, useEffect } from "react";
-import { eliminarCajas } from "../services/CajasService";
-import { Input, Textarea, Select, Option, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
+import { Input, Button, Dialog, ButtonGroup } from "@material-tailwind/react";
 import { BiExport } from "react-icons/bi";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
+import { URL_API } from "../helpers/Config";
+import { FaRegSave } from "react-icons/fa";
 import Pagination from "../components/Pagination";
-import { listaCategorias } from "../services/CategoriasService";
+
+const initValues = {
+  nombre: "",
+  descripcion: "",
+};
+
+const NuevaCategoriaForm = ({ handleChange, handleSubmit }) => {
+  const [nuevaCategoria, setNuevaCategoria] = useState(initValues);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNuevaCategoria((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  return (
+    <form className="grid grid-cols-3 gap-6 bg-white p-4 rounded-xl">
+      <h2 className="col-span-3 bg-[#131422] rounded-xl p-2 text-center font-medium text-3xl text-white">
+        Nuevo Permiso
+      </h2>
+
+      <div className="rounded-xl h-12">
+        <Input
+          onChange={handleInputChange}
+          name="nombre"
+          color="indigo"
+          size="lg"
+          label="Nombre"
+          value={nuevaCategoria.nombre}
+        />
+      </div>
+      <div className="rounded-xl h-12">
+        <Input
+          onChange={handleInputChange}
+          name="descripcion"
+          color="indigo"
+          size="lg"
+          label="Descripción"
+          value={nuevaCategoria.descripcion}
+        />
+      </div>
+
+      <Button
+        color="green"
+        onClick={() => handleSubmit(nuevaCategoria, "POST")}
+        className="text-base w-36 flex justify-center gap-2 items-center"
+      >
+        Guardar
+        <FaRegSave />
+      </Button>
+    </form>
+  );
+};
+
+const EditarCategoriaForm = ({ categoriaSeleccionada, handleChange, handleSubmit }) => {
+  return (
+    <form className="grid grid-cols-3 gap-6 bg-white p-4 rounded-xl">
+      <h2 className="col-span-3 bg-[#131422] rounded-xl p-2 text-center font-medium text-3xl text-white">
+        Editar Permiso
+      </h2>
+      <div className="rounded-xl h-12">
+        <Input
+          onChange={handleChange}
+          name="nombre"
+          color="indigo"
+          size="lg"
+          label="Nombre"
+          value={categoriaSeleccionada.nombre}
+        />
+      </div>
+      <div className="rounded-xl h-12">
+        <Input
+          onChange={handleChange}
+          name="descripcion"
+          color="indigo"
+          size="lg"
+          label="Descripción"
+          value={categoriaSeleccionada.descripcion}
+        />
+      </div>
+
+      <Button
+        color="green"
+        onClick={() => handleSubmit(categoriaSeleccionada, "PUT")}
+        className="text-base w-36 flex justify-center gap-2 items-center"
+      >
+        Guardar
+        <FaRegSave />
+      </Button>
+    </form>
+  );
+};
 
 const Permisos = () => {
-  const [permisos, setPermisos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const handleOpen = () => setOpenModal((cur) => !cur);
-
-  const [permisosPerPage, setPermisosPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
-  const lastPermisoIndex = currentPage * permisosPerPage;
-  const firstPermisoIndex = lastPermisoIndex - permisosPerPage;
-  const currentPermisos = permisos.slice(firstPermisoIndex, lastPermisoIndex);
+  const handleOpen = () => {
+    setCategoriaSeleccionada(null);
+    setOpenModal((cur) => !cur);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const nuevaCategoria = { ...categoriaSeleccionada, [name]: value };
+    setCategoriaSeleccionada(nuevaCategoria);
+  };
+
+  const agregarCategoria = async (nuevaCategoria) => {
+    try {
+      console.log("Datos de la nueva categoría:", nuevaCategoria);
+      const response = await axios.post(`${URL_API}/permisos`, nuevaCategoria);
+      console.log("Respuesta del servidor:", response.data);
+      listarCategorias();
+    } catch (error) {
+      console.error("Error al agregar la categoría:", error);
+    }
+  };
+
+  const editarCategoria = async (categoriaEditada) => {
+    try {
+      console.log("Datos de la categoría editada:", categoriaEditada);
+      const response = await axios.put(`${URL_API}/permisos/${categoriaEditada.id}`, categoriaEditada);
+      console.log("Respuesta del servidor:", response.data);
+      listarCategorias();
+    } catch (error) {
+      console.error("Error al editar la categoría:", error);
+    }
+  };
+
+  const handleSubmit = (data, method) => {
+    if (method === "PUT") {
+      editarCategoria(data);
+    } else {
+      agregarCategoria(data);
+    }
+    handleOpen();
+  };
+
+  const handleDeleteCategoria = async (categoriaId) => {
+    try {
+      const response = await axios.delete(`${URL_API}/permisos/${categoriaId}`);
+      console.log("Respuesta del servidor:", response.data);
+      listarCategorias();
+    } catch (error) {
+      console.error("Error al eliminar la categoría:", error);
+    }
+  };
+
+  const handleEdit = (categoria) => {
+    setCategoriaSeleccionada(categoria);
+    setOpenModal((cur) => !cur);
+  };
 
   const listarCategorias = async () => {
-    const result = await listaCategorias();
-    setPermisos(result.data)
-  }
-  
+    try {
+      const response = await axios.get(`${URL_API}/permisos`);
+      setCategorias(response.data);
+    } catch (error) {
+      console.error("Error al obtener los datos de la API:", error);
+    }
+  };
+
   useEffect(() => {
     listarCategorias();
   }, []);
 
-  const DateInput = React.forwardRef(({ value, onClick }, ref) => (
-    <button className="example-custom-input" onClick={onClick} ref={ref}>
-      {value}
-    </button>
-  ));
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = categorias.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <section className="h-full">
@@ -51,19 +196,19 @@ const Permisos = () => {
         </Button>
       </div>
       <Dialog size="lg" open={openModal} handler={handleOpen} className="bg-transparent shadow-none">
-        <form className="grid grid-cols-3 gap-6 bg-white p-4 rounded-xl">
-          <h2 className="col-span-3 text-center font-medium text-3xl text-[#131422]">Nuevo Usuario</h2>
-          <div className="rounded-xl h-12">
-            <Input color="indigo" size="lg" label="Nombre" />
-          </div>
-          <div className="rounded-xl h-12 row-span-2">
-            <Textarea color="indigo" size="lg" label="Descripción" />
-          </div>
-        </form>
+        {categoriaSeleccionada === null ? (
+          <NuevaCategoriaForm handleChange={handleChange} handleSubmit={handleSubmit} />
+        ) : (
+          <EditarCategoriaForm
+            categoriaSeleccionada={categoriaSeleccionada}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
+        )}
       </Dialog>
       <div className="w-full bg-blank p-9 rounded-xl">
         <div>Esta info va en cuadritos como dashboard</div>
-        <div>Cantidad Permisos: {permisos.length}</div>
+        <div>Cantidad Categorías: {categorias.length}</div>
       </div>
       <table className="table-auto rounded-xl col-span-3 bg-white w-full mt-4">
         <thead>
@@ -71,27 +216,28 @@ const Permisos = () => {
             <th>N°</th>
             <th>Nombre</th>
             <th>Descripción</th>
-            <th>Estado</th>
             <th>Acciones</th>
             <th className="rounded-e"></th>
           </tr>
         </thead>
         <tbody>
-          {currentPermisos.map((permiso, index) => {
+          {currentItems.map((categoria, index) => {
             return (
-              <tr key={permiso.id} className="[&>td]:p-2">
-                <td className="text-center">{index + 1}</td>
-                <td className="text-center">{permiso.nombre}</td>
-                <td className="text-center">{permiso.descripcion}</td>
-                <td className="text-center">{permiso.estado}</td>
+              <tr key={categoria.id} className="[&>td]:p-2">
+                <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                <td className="text-center">{categoria.nombre}</td>
+                <td className="text-center">{categoria.descripcion}</td>
                 <td className="flex justify-center">
                   <ButtonGroup variant="outlined" className="text-center [&>Button]:text-base">
-                    <Button className="border duration-300 border-green-300 text-green-300 hover:bg-green-300 hover:text-white">
+                    <Button
+                      onClick={() => handleEdit(categoria)}
+                      className="border duration-300 border-green-300 text-green-300 hover:bg-green-300 hover:text-white"
+                    >
                       <FiEdit2 />
                     </Button>
                     <Button
-                      /* onClick={() => handleDeleteCaja(caja.numero_correlativo)} */
-                      className="border duration-300 border-red-300  text-red-300 hover:bg-red-300 hover:text-white"
+                      onClick={() => handleDeleteCategoria(categoria.id)}
+                      className="border duration-300 bor:bg-grd-300  text-red-300 hover:bg-red-300 hover:text-white"
                     >
                       <FiTrash2 />
                     </Button>
@@ -102,11 +248,11 @@ const Permisos = () => {
           })}
         </tbody>
       </table>
-      <Pagination 
-                totalProducts={permisos.length} 
-                productsPerPage={permisosPerPage}
-                setCurrentPage={setCurrentPage} 
-                currentPage={currentPage} 
+      <Pagination
+        totalProducts={categorias.length}
+        productsPerPage={itemsPerPage}
+        setCurrentPage={paginate}
+        currentPage={currentPage}
       />
     </section>
   );
