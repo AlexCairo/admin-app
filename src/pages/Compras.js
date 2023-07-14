@@ -330,12 +330,12 @@ const EditarCompraForm = ({ compraSeleccionada, handleChange, handleSubmit, hand
             </tr>
           </thead>
           <tbody>
-            {compraSeleccionada.carrito.map((item) => (
-              <tr key={item.producto.id}>
-                <td>{item.producto.label}</td>
-                <td>{item.cantidad}</td>
-                <td>{item.precio}</td>
-                <td>{item.precio * item.cantidad}</td>
+              {compraSeleccionada?.compra_inventarios.map((item) => (
+              <tr key={item.id}>
+                <td>{item.inventario.producto.nombre}</td>
+                <td>{item.cantidad.toFixed(2)}</td>
+                <td>{item.precio.toFixed(2)}</td>
+                <td>{(item.precio * item.cantidad).toFixed(2)}</td>
               </tr>
             ))}
 
@@ -343,7 +343,7 @@ const EditarCompraForm = ({ compraSeleccionada, handleChange, handleSubmit, hand
               <td>Total</td>
               <td></td>
               <td></td>
-              <td>{compraSeleccionada.montoTotal}</td>
+              <td>{compraSeleccionada.montoTotal.toFixed(2)}</td>
             </tr>
           </tbody>
         </table>
@@ -412,10 +412,6 @@ const Compras = () => {
     }
   };
 
-  const handleGenerarReporte = (compraId) => {
-    const url = `${URL_API}/reportes/compras/${compraId}`;
-    window.open(url, "_blank");
-  };
 
   const handleEdit = (compra) => {
     setCompraSeleccionada(compra);

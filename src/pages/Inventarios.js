@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Input, Textarea, Select, Option, Button, Dialog } from "@material-tailwind/react";
+import { Input, Textarea, Button, Dialog } from "@material-tailwind/react";
 import { BiExport } from "react-icons/bi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import { URL_API } from "../helpers/Config";
-import Loader from "../components/Loader";
+import Select from "react-select";
 
 const Inventarios = () => {
   const [inventarios, setInventarios] = useState([]);
@@ -21,11 +21,16 @@ const Inventarios = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showResults, setShowResults] = useState(false);
   const [productoData, setProductoData] = useState(null);
+  const [tipoAjuste, setTipoAjuste] = useState("Entrada");
+  const [fechaAjuste, setFechaAjuste] = useState(new Date());
+  const [cantidadAjuste, setCantidadAjuste] = useState(0);
+  const [costoUnitarioAjuste, setCostoUnitarioAjuste] = useState(0);
+  const [motivoAjuste, setMotivoAjuste] = useState("");
 
   const handleOpen = () => setOpenModal((cur) => !cur);
 
-  const handleOptionChange = (value) => {
-    setSelectedOption(value);
+  const handleOptionChange = (option) => {
+    setSelectedOption(option.value);
   };
 
   const fetchProductos = async () => {
@@ -42,31 +47,30 @@ const Inventarios = () => {
     }
   };
 
-  const fetchSearchResults = async (term) => {
-    try {
-      const response = await axios.get(`${URL_API}/productos/listarProductos`);
-      const filteredResults = response.data.filter((result) =>
-        result.nombre.toLowerCase().includes(term.toLowerCase())
-      );
-      setSearchResults(filteredResults);
-    } catch (error) {
-      console.error("Error al realizar la búsqueda:", error);
+  const fetchInventarios = async () => {
+    if (selectedProduct) {
+      const year = selectedDate.getFullYear();
+      const month = selectedDate.getMonth() + 1;
+      const day = selectedDate.getDate();
+
+      let url = `${URL_API}/kardex/${selectedProduct.id}/${year}`;
+
+      if (selectedOption === "Mensual") {
+        url += `/${month}`;
+      } else if (selectedOption === "Diario") {
+        url += `/${month}/${day}`;
+      }
+
+      try {
+        const response = await axios.get(url);
+        setInventarios(response.data.detalleInventario);
+        setCostoInicial(response.data.costoInicial);
+        setCantidadInicial(response.data.cantidadInicial);
+        setCantidadFinal(response.data.cantidadFinal);
+      } catch (error) {
+        console.error("Error al obtener los datos de la API:", error);
+      }
     }
-  };
-
-  const handleSearch = (event) => {
-    const term = event.target.value;
-    setSearchTerm(term);
-
-    // Realiza la búsqueda en el API utilizando el término de búsqueda
-    if (term.trim() === "") {
-      // Mostrar todos los productos cuando el campo de búsqueda está vacío
-      setSearchResults(searchResults);
-    } else {
-      fetchSearchResults(term);
-    }
-
-    setShowResults(true);
   };
 
   const handleProductChange = (product) => {
@@ -80,31 +84,7 @@ const Inventarios = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedProduct) {
-      const year = selectedDate.getFullYear();
-      const month = selectedDate.getMonth() + 1;
-      const day = selectedDate.getDate();
-
-      let url = `${URL_API}/kardex/${selectedProduct.id}/${year}`;
-
-      if (selectedOption === "mes") {
-        url += `/${month}`;
-      } else if (selectedOption === "dia") {
-        url += `/${month}/${day}`;
-      }
-
-      axios
-        .get(url)
-        .then((response) => {
-          setInventarios(response.data.detalleInventario);
-          setCostoInicial(response.data.costoInicial);
-          setCantidadInicial(response.data.cantidadInicial);
-          setCantidadFinal(response.data.cantidadFinal);
-        })
-        .catch((error) => {
-          console.error("Error al obtener los datos de la API:", error);
-        });
-    }
+    fetchInventarios();
   }, [selectedProduct, selectedOption, selectedDate]);
 
   useEffect(() => {
@@ -124,16 +104,6 @@ const Inventarios = () => {
     fetchProductoData();
   }, [selectedProduct]);
 
-  const DateInput = React.forwardRef(({ value, onClick }, ref) => (
-    <button className="example-custom-input" onClick={onClick} ref={ref}>
-      {value}
-    </button>
-  ));
-
-  const handleSearchFocus = (event) => {
-    event.target.select();
-  };
-
   const handlePdfClick = () => {
     const { id, nombre } = selectedProduct;
     const year = selectedDate.getFullYear();
@@ -144,53 +114,72 @@ const Inventarios = () => {
     window.open(pdfUrl, "_blank");
   };
 
-  return ( inventarios.length > 0 ? (
+  const handleAjusteClick = () => {
+    const ajusteData = {
+      tipo: tipoAjuste === "Entrada" ? 1 : 2,
+      producto_id: selectedProduct.id,
+      fecha: fechaAjuste.toISOString().split("T")[0],
+      cantidad: cantidadAjuste,
+      costoUnitario: tipoAjuste === "Entrada" ? costoUnitarioAjuste : 0,
+      motivo: motivoAjuste,
+    };
+
+    axios
+      .post(`${URL_API}/inventarios`, ajusteData)
+      .then((response) => {
+        // Realizar alguna acción después de un ajuste exitoso
+        console.log("Ajuste de inventario exitoso:", response.data);
+        fetchInventarios(); // Actualizar el inventario después del ajuste
+      })
+      .catch((error) => {
+        console.error("Error al realizar el ajuste de inventario:", error);
+      });
+
+    // Cerrar el modal
+    setOpenModal(false);
+
+    // Restablecer los valores de los campos de ajuste
+    setTipoAjuste("Entrada");
+    setFechaAjuste(new Date());
+    setCantidadAjuste(0);
+    setCostoUnitarioAjuste(0);
+    setMotivoAjuste('');
+  };
+
+  return (
     <section className="h-full">
-      <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between items-center">
+      <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between">
         <Button onClick={handleOpen} className="rounded-full font-bold text-2xl">
           +
         </Button>
-        <div className="relative text-center">
-          <Input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearch}
-            onFocus={handleSearchFocus}
-            label="Buscar Producto"
-            color="cyan"
-            className="text-white"
+        <div style={{ width: "400px" }}>
+          <label className="block text-sm font-medium text-gray-700">Producto</label>
+          <Select
+            className="basic-single"
+            classNamePrefix="select"
+            value={selectedProduct}
+            onChange={handleProductChange}
+            options={searchResults}
+            getOptionLabel={(option) => option.nombre}
+            getOptionValue={(option) => option.id}
           />
-          {showResults && searchTerm.length > 0 && searchResults.length > 0 && (
-            <ul className="absolute h-80 overflow-y-auto z-10 bg-white border border-gray-300 rounded-md mt-2 w-full">
-              {searchResults.map((result) => (
-                <li 
-                  key={result.id}
-                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleProductChange(result)}
-                >
-                  {result.nombre}
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
-        <div className="flex text-white items-center">
+        <div className="flex items-center bg-white">
           <span className="mr-2">Fecha:</span>
-          <div className="rounded border border-white p-2">
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date) => setSelectedDate(date)}
-              customInput={<DateInput />}
-              dateFormat="dd/MM/yyyy"
-            />
+          <div className="rounded-xl h-12">
+            <DatePicker selected={selectedDate} onChange={(date) => setSelectedDate(date)} dateFormat="dd/MM/yyyy" />
           </div>
         </div>
         <div className="rounded-xl h-12">
-          <Select label="Reportes" value={selectedOption} onChange={handleOptionChange} className="text-white" size="lg">
-            <Option value="anual">Anual</Option>
-            <Option value="mes">Mensual</Option>
-            <Option value="dia">Diario</Option>
-          </Select>
+          <Select
+            value={{ value: selectedOption, label: selectedOption }}
+            onChange={handleOptionChange}
+            options={[
+              { value: "Anual", label: "Anual" },
+              { value: "Mensual", label: "Mensual" },
+              { value: "Diario", label: "Diario" },
+            ]}
+          />
         </div>
         <Button onClick={handlePdfClick}>PDF</Button>
         <Button
@@ -207,14 +196,67 @@ const Inventarios = () => {
             <Input
               color="indigo"
               size="lg"
-              label="Nombre"
+              label="Nombre del Producto"
               value={selectedProduct ? selectedProduct.nombre : ""}
               readOnly
             />
           </div>
           <div className="rounded-xl h-12 row-span-2">
-            <Textarea color="indigo" size="lg" label="Descripción" />
+            <Input
+              color="indigo"
+              size="lg"
+              label="Motivo"
+              value={motivoAjuste}
+              onChange={(e) => setMotivoAjuste(e.target.value)}
+            />
           </div>
+          <div className="col-span-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700">Tipo de Ajuste</label>
+                <Select
+                  className="basic-single"
+                  classNamePrefix="select"
+                  value={{ value: tipoAjuste, label: tipoAjuste }}
+                  onChange={(option) => setTipoAjuste(option.value)}
+                  options={[
+                    { value: "Entrada", label: "Entrada" },
+                    { value: "Salida", label: "Salida" },
+                  ]}
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700">Fecha</label>
+                <DatePicker selected={fechaAjuste} onChange={(date) => setFechaAjuste(date)} dateFormat="dd/MM/yyyy" />
+              </div>
+            </div>
+          </div>
+          <div className="col-span-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700">Cantidad</label>
+                <Input
+                  type="number"
+                  color="indigo"
+                  size="lg"
+                  value={cantidadAjuste}
+                  onChange={(e) => setCantidadAjuste(parseFloat(e.target.value))}
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700">Costo Unitario</label>
+                <Input
+                  type="number"
+                  color="indigo"
+                  size="lg"
+                  value={costoUnitarioAjuste}
+                  onChange={(e) => setCostoUnitarioAjuste(parseFloat(e.target.value))}
+                  disabled={tipoAjuste === "Salida"}
+                />
+              </div>
+            </div>
+          </div>
+          <Button onClick={handleAjusteClick}>Ajustar</Button>
         </form>
       </Dialog>
       {selectedProduct && (
@@ -296,7 +338,7 @@ const Inventarios = () => {
           </tfoot>
         </table>
       )}
-    </section> ) : (<Loader />)
+    </section>
   );
 };
 
