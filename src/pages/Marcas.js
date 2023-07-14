@@ -6,6 +6,8 @@ import axios from "axios";
 import { URL_API } from "../helpers/Config";
 import { FaRegSave } from "react-icons/fa";
 import Pagination from "../components/Pagination";
+import { BsFillBookmarkCheckFill } from "react-icons/bs"
+import Loader from "../components/Loader"
 
 const initValues = {
   nombre: "",
@@ -160,7 +162,7 @@ const Marcas = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = marcas.slice(indexOfFirstItem, indexOfLastItem);
 
-  return (
+  return ( marcas.length > 0 ? (
     <section className="h-full">
       <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between">
         <Button onClick={handleOpen} className="rounded-full font-bold text-2xl">
@@ -185,9 +187,19 @@ const Marcas = () => {
           />
         )}
       </Dialog>
-      <div className="w-full bg-blank p-9 rounded-xl">
-        <div>Esta info va en cuadritos como dashboard</div>
-        <div>Cantidad Marcas: {marcas.length}</div>
+      <div className="w-full mt-4 grid grid-cols-4">
+        <div className="flex bg-white grid-row- justify-between items-center">
+            <div className="bg-green-400 w-[40%] h-full grid place-content-center">
+                <BsFillBookmarkCheckFill className="text-[8rem] text-white" />
+            </div>
+            <div className="text-center w-[60%]">
+                <h2 className="text-xl text-gray-500 font-semibold">Marcas</h2>
+                <span className="text-[5rem] text-gray-500 font-semibold">{marcas.length}</span>
+            </div>
+        </div>
+        <div></div>
+        <div></div>
+        <div></div>
       </div>
       <table className="table-auto rounded-xl col-span-3 bg-white w-full mt-4">
         <thead>
@@ -231,8 +243,7 @@ const Marcas = () => {
         setCurrentPage={paginate}
         currentPage={currentPage}
       />
-    </section>
-  );
+    </section> ) : (<Loader />) );
 };
 
 export default Marcas;

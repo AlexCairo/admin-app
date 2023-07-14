@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import { URL_API } from "../helpers/Config";
+import Loader from "../components/Loader";
 
 const Inventarios = () => {
   const [inventarios, setInventarios] = useState([]);
@@ -143,26 +144,26 @@ const Inventarios = () => {
     window.open(pdfUrl, "_blank");
   };
 
-  return (
+  return ( inventarios.length > 0 ? (
     <section className="h-full">
-      <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between">
+      <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between items-center">
         <Button onClick={handleOpen} className="rounded-full font-bold text-2xl">
           +
         </Button>
-        <div className="relative bg-white">
-          Busque el Producto:
+        <div className="relative text-center">
           <Input
             type="text"
             value={searchTerm}
             onChange={handleSearch}
             onFocus={handleSearchFocus}
-            placeholder="Buscar"
-            className="border border-gray-300 rounded-md px-4 py-2 mb-4 bg-white"
+            label="Buscar Producto"
+            color="cyan"
+            className="text-white"
           />
           {showResults && searchTerm.length > 0 && searchResults.length > 0 && (
             <ul className="absolute h-80 overflow-y-auto z-10 bg-white border border-gray-300 rounded-md mt-2 w-full">
               {searchResults.map((result) => (
-                <li
+                <li 
                   key={result.id}
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleProductChange(result)}
@@ -173,9 +174,9 @@ const Inventarios = () => {
             </ul>
           )}
         </div>
-        <div className="flex items-center bg-white">
+        <div className="flex text-white items-center">
           <span className="mr-2">Fecha:</span>
-          <div className="rounded-xl h-12">
+          <div className="rounded border border-white p-2">
             <DatePicker
               selected={selectedDate}
               onChange={(date) => setSelectedDate(date)}
@@ -185,7 +186,7 @@ const Inventarios = () => {
           </div>
         </div>
         <div className="rounded-xl h-12">
-          <Select label="Reportes" value={selectedOption} onChange={handleOptionChange} className="bg-white" size="lg">
+          <Select label="Reportes" value={selectedOption} onChange={handleOptionChange} className="text-white" size="lg">
             <Option value="anual">Anual</Option>
             <Option value="mes">Mensual</Option>
             <Option value="dia">Diario</Option>
@@ -295,7 +296,7 @@ const Inventarios = () => {
           </tfoot>
         </table>
       )}
-    </section>
+    </section> ) : (<Loader />)
   );
 };
 

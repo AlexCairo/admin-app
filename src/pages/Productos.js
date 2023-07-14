@@ -8,6 +8,7 @@ import { BiExport, BiSearch } from "react-icons/bi"
 import { FaRegSave } from "react-icons/fa"
 import { FiEdit2, FiTrash2 } from "react-icons/fi"
 import Pagination from "../components/Pagination";
+import Loader from "../components/Loader";
 
 const initValues = {
     id : 0,
@@ -28,7 +29,6 @@ const Productos = () => {
     const [productsPerPage, setProductsPerPage] = useState(6);
     const [currentPage, setCurrentPage] = useState(1);
     const [nuevoProducto, setNuevoProducto] = useState(initValues);
-    const [tituloModal, setTituloModal] = useState('Nuevo producto');
     
     const lastProductIndex = currentPage * productsPerPage;
     const firstPostIndex = lastProductIndex - productsPerPage;
@@ -80,15 +80,11 @@ const Productos = () => {
         listarCategorias();
     },[])
 
-    return(
+    return( productos.length > 0 ? (
         <section className="h-full">
             <React.Fragment>
                 <div className="w-full bg-[#131422] p-4 rounded-xl flex justify-between items-center">
                     <Button onClick={handleOpen} className="rounded-full font-bold text-2xl">+</Button>
-                    <div className="flex relative">
-                        <Input containerProps={{className : "min-w-0"}} className="pr-20" label="Buscar" color="white"/>
-                        <Button  size="sm" className="text-base !absolute right-1 top-1 rounded" ><BiSearch/></Button>
-                    </div>
                     <Button ripple={true} className="bg-white text-purple-500 duration-300 shadow-none hover:shadow-none hover:bg-purple-800 hover:text-white"><BiExport className="text-2xl" /></Button>
                 </div>
                 <Dialog size="lg" open={openModal} handler={handleOpen} className="bg-transparent shadow-none">
@@ -178,7 +174,7 @@ const Productos = () => {
                 setCurrentPage={setCurrentPage} 
                 currentPage={currentPage} 
             />
-        </section>
+        </section> ) : (<Loader />)
     )
 }
 

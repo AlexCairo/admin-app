@@ -127,7 +127,7 @@ const SideBar = ({ children }) => {
       <div className="main-container">
         <motion.div
           animate={{
-            width: isOpen ? "300px" : "55px",
+            width: isOpen ? "250px" : "60px",
 
             transition: {
               duration: 0.5,
@@ -151,7 +151,6 @@ const SideBar = ({ children }) => {
                 </motion.h1>
               )}
             </AnimatePresence>
-
             <div className="bars">
               <FaBars onClick={toggle} />
             </div>
@@ -161,7 +160,8 @@ const SideBar = ({ children }) => {
               if (route.subRoutes) {
                 return (
                   <SidebarMenu
-                   key={index}
+                    toggle={toggle}
+                    key={index}
                     setIsOpen={setIsOpen}
                     route={route}
                     showAnimation={showAnimation}
@@ -175,6 +175,7 @@ const SideBar = ({ children }) => {
                   to={route.path}
                   key={index}
                   className="link"
+                  onClick={toggle}
                   activeclassname="active"
                 >
                   <div className="icon">{route.icon}</div>
@@ -196,7 +197,7 @@ const SideBar = ({ children }) => {
             })}
           </section>
         </motion.div>
-        <main className="bg-[#E9F4F2] w-screen p-7">
+        <main className="bg-[#E9F4F2] w-screen h-screen p-7">
           {listaDeProductos.length > 0 ? children : <><Loader /></>}
         </main>
       </div>
