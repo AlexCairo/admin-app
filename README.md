@@ -1,3 +1,11 @@
+#Url de la web : https://ventas.esisunjbg.com
+
+#Credenciales :
+##77000000
+##123456
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
