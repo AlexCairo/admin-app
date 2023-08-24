@@ -1,8 +1,8 @@
 #Url de la web : https://ventas.esisunjbg.com
 
 #Credenciales :
-##77000000
-##123456
+77000000
+123456
 
 
 
